@@ -4,12 +4,6 @@ USER root
 
 WORKDIR /src
 
-RUN export DB_USERNAME=myuser
-RUN export DB_PASSWORD=mypassword
-RUN export DB_HOST=127.0.0.1
-RUN export DB_PORT=5433
-RUN export DB_NAME=mydatabase
-
 COPY ./requirements.txt requirements.txt
 
 # Dependencies required for psycopg2 (used for Postgres client)

@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: coworking
-        image: 814588873964.dkr.ecr.us-east-1.amazonaws.com/anto-repo:7
+        image: 814588873964.dkr.ecr.us-east-1.amazonaws.com/anto-repo:8
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

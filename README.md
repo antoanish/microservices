@@ -1,7 +1,10 @@
 # Coworking Space Service Extension
 The Coworking Space Service is a set of APIs that enables users to request one-time tokens and administrators to authorize access to a coworking space. This service follows a microservice pattern and the APIs are split into distinct services that can be deployed and managed independently of one another.
 
-For this project, you are a DevOps engineer who will be collaborating with a team that is building an API for business analysts. The API provides business analysts basic analytics data on user activity in the service. The application they provide you functions as expected locally and you are expected to help build a pipeline to deploy it in Kubernetes.
+How to check API functionality
+curl  ac40f35c0dab74ca78abce810ac8bf56-113849589.us-east-1.elb.amazonaws.com:5153/api/reports/daily_usage
+
+curl  ac40f35c0dab74ca78abce810ac8bf56-113849589.us-east-1.elb.amazonaws.com:5153/api/reports/user_visits
 
 ## Getting Started
 
@@ -10,7 +13,7 @@ For this project, you are a DevOps engineer who will be collaborating with a tea
 1. Python Environment - run Python 3.6+ applications and install Python dependencies via `pip`
 2. Docker CLI - build and run Docker images locally
 3. `kubectl` - run commands against a Kubernetes cluster
-4. `helm` - apply Helm Charts to a Kubernetes cluster
+
 
 #### Remote Resources
 1. AWS CodeBuild - build Docker images remotely
@@ -23,10 +26,60 @@ For this project, you are a DevOps engineer who will be collaborating with a tea
 #### 1. Configure a Database
 Set up a Postgres database using a Helm Chart.
 
-1. Set up Bitnami Repo
+1. Set up AWS account
+aws configure
+
+Enter the associated AWS Access Key ID and Secret Access key that will be used for this account
+
+2. Install the latest version eksctl
+Ensure that the latest version of eksctl is installed in your workspace so that it supports the most recent version of EKS in AWS
+
+
+Follow the below steps for installation
 ```bash
-helm repo add <REPO_NAME> https://charts.bitnami.com/bitnami
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+
+# (Optional) Verify checksum
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+
+sudo mv /tmp/eksctl /usr/local/bin
 ```
+
+Once eksctl is installed run the below command
+```
+eksctl create cluster --version=1.32 --name anto-cluster --region us-east-1 --nodegroup-name anto-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 4
+```
+
+3. Install PostgreSQL 
+
+
+Update the kubeconfig file
+```
+aws eks --region us-east-1 update-kubeconfig --name anto-cluster
+kubectl config current-context
+```
+
+Create the necessary YAML configurations 
+```
+kubectl apply -f pvc.yaml
+kubectl apply -f pv.yaml
+kubectl apply -f postgresql-deployment.yaml
+```
+Create the kubectl service
+```
+kubectl apply -f postgresql-service.yaml
+```
+
+Setup portforwarding to seed the database
+```
+kubectl port-forward service/postgresql-service 5433:5432 &
+
+
 
 2. Install PostgreSQL Helm Chart
 ```
