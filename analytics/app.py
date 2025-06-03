@@ -4,13 +4,21 @@ import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 from flask import jsonify, request
-from sqlalchemy import and_, text
+from sqlalchemy import and_, text, Column, Integer
+from sqlalchemy.ext.declarative import declarative_base
 from random import randint
 
 from config import app, db
 
 
 port_number = int(os.environ.get("APP_PORT", 5153))
+
+Base = declarative_base()
+
+
+class Token(Base):
+    __tablename__ = "tokens"
+    id = Column(Integer, primary_key=True)
 
 
 @app.route("/health_check")
@@ -41,18 +49,16 @@ def get_daily_visits():
 
         response = {}
         for row in result:
-            response[str(row[0])] = {
-                row[1]
-            }
+            response[str(row[0])] = row[1]
+
         app.logger.info(response)
-        print(response)
 
     return response
 
 
 @app.route("/api/reports/daily_usage", methods=["GET"])
 def daily_visits():
-    return jsonify(get_daily_visits)
+    return jsonify(get_daily_visits())
 
 
 @app.route("/api/reports/user_visits", methods=["GET"])
