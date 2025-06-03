@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: app
 data:
-  DB_HOST: "10.100.153.63"
+  DB_HOST: "10.100.107.40"
   DB_PORT: "5432"
   DB_USERNAME: myuser
   DB_NAME: mydatabase
